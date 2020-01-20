@@ -1,6 +1,16 @@
 <template>
 	<v-container class="pa-2">
 		<v-layout wrap justify-center>
+			<v-flex xs12class="pa-2">
+				<v-alert :value="true" type="info" outline class="mb-2">
+					API Proxy is a server endpoint that forwards your request to the Namecheap API endpoint.
+					<br />
+					It's intended to get rid of IP restrictions. Remember to add ClientIP as the POST parameter when you're writing your own proxy!
+				</v-alert>
+				<v-alert :value="true" type="warning" outline class="mb-2">
+					It's not OK to fill in "https://api.namecheap.com/xml.response" directly, because the client won't attach "ClientIP" parameter and therefore will cause an error.
+				</v-alert>
+			</v-flex>
 			<v-flex xs12 md6 class="pa-2">
 				<v-card class="elevation-4">
 					<v-toolbar color="primary">

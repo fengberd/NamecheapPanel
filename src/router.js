@@ -8,7 +8,8 @@ Vue.use(Router);
 
 let router=new Router(
 {
-	mode: 'history',
+	// For github-pages
+	// mode: 'history',
 	base: process.env.BASE_URL,
 	routes: [
 		{ path: '/', component: HomeView },

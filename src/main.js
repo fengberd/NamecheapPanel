@@ -80,6 +80,11 @@ new Vue(
 	},
 	created()
 	{
+		if(!localStorage.api || !JSON.parse(localStorage.api).url)
+		{
+			this.domains=[{ domain: 'Setup API First', prevent: true }];
+			return;
+		}
 		this.fetchAPI('namecheap.domains.getList')
 			.then(data=>
 			{
