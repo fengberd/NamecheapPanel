@@ -13,15 +13,15 @@ new Vue(
 {
     data:
 	{
-		title: 'A Cute Title',
+		title: 'Namecheap Panel',
 		drawer: null,
 		dark: true,
-		domains: ['Loading...'],
+		domains: [{ domain: 'Loading...', prevent: true }],
 		domains_expand: true
 	},
 	methods:
 	{
-		fetchAPI(command,data,options)
+		fetchAPI(command,data)
 		{
 			if(!data)
 			{
@@ -32,20 +32,35 @@ new Vue(
 			data.ApiUser=api.user;
 			data.UserName=api.userName;
 			data.Command=command;
-			data='?'+Object.keys(data)
-				.map(k=>encodeURIComponent(k)+'='+encodeURIComponent(data[k]))
-				.join('&');
-			return fetch(api.url+data,options)
-				.then(data=>data.text())
-				.then(text=>(new window.DOMParser()).parseFromString(text,'text/xml'))
-				.then(xml=>
+			return fetch(api.url,
+			{
+				method: 'POST',
+				headers:
 				{
-					if(xml.querySelectorAll('Error').count!=0)
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				body: Object.keys(data)
+					.map(k=>encodeURIComponent(k)+'='+encodeURIComponent(data[k]))
+					.join('&')
+			})
+			.then(data=>data.text())
+			.then(text=>(new window.DOMParser()).parseFromString(text,'text/xml'))
+			.then(xml=>
+			{
+				// TODO: Warnings?
+				var errors=xml.querySelectorAll('Errors > Error');
+				if(errors.length!=0)
+				{
+					var message='Request Failed';
+					errors.forEach(e=>
 					{
-						// gg
-					}
-					return xml.querySelector('CommandResponse');
-				});
+						message+='\n'+e.innerHTML+' ('+e.attributes.Number.value+')';
+					});
+					window.alert(message);
+					return null;
+				}
+				return xml.querySelector('CommandResponse');
+			});
 		},
 		newWindow(url)
 		{
@@ -56,22 +71,28 @@ new Vue(
 			location.href=process.env.BASE_URL+url;
 		}
 	},
+	watch:
+	{
+		$route()
+		{
+			this.title='Namecheap Panel';
+		}
+	},
 	created()
 	{
 		this.fetchAPI('namecheap.domains.getList')
 			.then(data=>
 			{
 				this.domains=[];
-				data.querySelectorAll('Domain').forEach(e=>
+				data.querySelectorAll('DomainGetListResult > Domain').forEach(e=>
 				{
-					if(e.attributes.IsOurDNS.value=='true')
+					e=e.attributes;
+					if(e.IsOurDNS.value=='true')
 					{
-						var d=e.attributes.Name.value.split('.');
 						this.domains.push(
 						{
-							'sld': d.shift(),
-							'tld': d.join('.'),
-							'icon': e.attributes.IsExpired.value=='true'?'warning':''
+							'domain': e.Name.value,
+							'icon': e.IsExpired.value=='true'?'warning':''
 						})
 					}
 				});

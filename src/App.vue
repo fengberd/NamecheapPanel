@@ -17,7 +17,7 @@
 						<v-list-tile-title>Home</v-list-tile-title>
 					</v-list-tile-content>
 				</v-list-tile>
-				<v-list-group v-model="$root.domains_expand" prepend-icon="language" no-action>
+				<v-list-group active-class="" v-model="$root.domains_expand" prepend-icon="language" no-action>
 					<template v-slot:activator>
 						<v-list-tile>
 							<v-list-tile-content>
@@ -25,9 +25,9 @@
 							</v-list-tile-content>
 						</v-list-tile>
 					</template>
-					<v-list-tile v-for="d in $root.domains" :key="d.sld + d.tld" @click="alert(d);">
+					<v-list-tile v-for="d in $root.domains" :key="d.domain" :to="d.prevent?'':'/domain/' + d.domain" :value="$route.params.domain==d.domain">
 						<v-list-tile-content>
-							<v-list-tile-title>{{ (d.sld + '.' + d.tld).toUpperCase() }}</v-list-tile-title>
+							<v-list-tile-title>{{ d.domain.toUpperCase() }}</v-list-tile-title>
 						</v-list-tile-content>
 						<v-list-tile-action v-if="d.icon">
 							<v-icon>{{ d.icon }}</v-icon>
