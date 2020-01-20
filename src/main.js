@@ -57,7 +57,7 @@ new Vue(
 						message+='\n'+e.innerHTML+' ('+e.attributes.Number.value+')';
 					});
 					window.alert(message);
-					return null;
+					throw new Error(message);
 				}
 				return xml.querySelector('CommandResponse');
 			});
@@ -92,15 +92,29 @@ new Vue(
 				data.querySelectorAll('DomainGetListResult > Domain').forEach(e=>
 				{
 					e=e.attributes;
-					if(e.IsOurDNS.value=='true')
+					var icon='',info='';
+					if(e.IsOurDNS.value!='true')
 					{
-						this.domains.push(
-						{
-							'domain': e.Name.value,
-							'icon': e.IsExpired.value=='true'?'warning':''
-						})
+						icon='block';
+						info='Domain isn\'t using Namecheap DNS.';
 					}
+					if(e.IsExpired.value=='true')
+					{
+						icon='warning';
+						info='Domain is expired!';
+					}
+					this.domains.push(
+					{
+						domain: e.Name.value,
+						prevent: icon!='',
+						icon,
+						info
+					})
 				});
+			})
+			.catch(()=>
+			{
+				this.domains=[{ domain: 'Error', prevent: true }];
 			});
 	},
 	el: '#app',

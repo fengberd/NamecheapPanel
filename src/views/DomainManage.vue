@@ -1,8 +1,8 @@
 <template>
 	<v-container class="pa-3">
 		<v-layout wrap>
-			<v-flex xs12>
-				<h2 class="mb-2 mx-2">DNS Records</h2>
+			<v-flex xs12 class="mb-2 mx-2">
+				<h2>DNS Records</h2>
 			</v-flex>
 			<v-flex xs12>
 				<v-data-table :headers="headers" :items="records" :loading="loading" :no-data-text="error==null?'Loading...':error" :rows-per-page-items="[-1]" disable-initial-sort class="elevation-2">
@@ -16,7 +16,7 @@
 							</v-edit-dialog>
 						</td>
 						<td>
-							<v-edit-dialog :return-value="s.item.name" lazy>
+							<v-edit-dialog :return-value="s.item.name" @open="if(s.item.host=='Click Me') s.item.host=''" lazy>
 								{{ s.item.host }}
 								<template v-slot:input>
 									<v-text-field @change="changed = true" v-model="s.item.host" label="Host" single-line></v-text-field>
@@ -24,9 +24,10 @@
 							</v-edit-dialog>
 						</td>
 						<td>
-							<v-edit-dialog :return-value="s.item.value" lazy>
+							<v-edit-dialog :return-value="s.item.value" @open="if(s.item.value=='Click Me') s.item.value=''" lazy>
 								{{ s.item.value }}
 								<template v-slot:input>
+									<!-- // TODO: Add a select box for CAA record -->
 									<v-text-field @change="changed = true" v-model="s.item.value" label="Value" single-line></v-text-field>
 								</template>
 							</v-edit-dialog>
@@ -48,9 +49,18 @@
 						</td>
 					</template>
 					<template v-slot:actions-append>
-						<v-btn flat color="white" :disabled="!changed" @click="saveRecords()">SAVE</v-btn>
+						<v-btn flat color="white" @click="newRecord()">NEW</v-btn>
 					</template>
 				</v-data-table>
+			</v-flex>
+			<v-flex xs12 class="ma-2">
+				<h2>Mail Settings</h2>
+			</v-flex>
+			<v-flex xs12>
+				<v-select :items="emailTypes" v-model="emailType" item-value="key" item-text="name" @change="changed = true" label="Mail DNS Mode" class="mb-2" hide-details solo></v-select>
+			</v-flex>
+			<v-flex xs12 style="text-align: end;">
+				<v-btn class="mr-0 mt-2" :disabled="!changed" @click="saveRecords()">SAVE</v-btn>
 			</v-flex>
 		</v-layout>
 	</v-container>
@@ -65,9 +75,6 @@ export default
 	},
 	data: ()=>(
 	{
-		domain: '',
-		sld: '',
-		tld: '',
 		headers: [
 			{ text: 'Type', value: 'type' },
 			{ text: 'Host', value: 'host' },
@@ -90,12 +97,23 @@ export default
 			'FRAME'
 		],
 		ttlPresets: [
-			60,
-			300,
-			1200,
-			1800,
-			3600
+			'60',
+			'300',
+			'1200',
+			'1800',
+			'3600'
 		],
+		emailTypes: [
+			{ key: 'NONE', name: 'No Email Service' },
+			{ key: 'MX', name: 'Custom MX' },
+			{ key: 'MXE', name: 'MXE Record' },
+			{ key: 'FWD', name: 'Email Forwarding' },
+			{ key: 'OX', name: 'Private Email' },
+			{ key: 'GMAIL', name: 'Gmail' }
+		],
+		domain: '',
+		sld: '',
+		tld: '',
 		records: [],
 		emailType: '',
 		changed: false,
@@ -124,8 +142,13 @@ export default
 				TLD: this.tld
 			}).then(data=>
 			{
-				this.emailType=data.querySelector('DomainDNSGetHostsResult').attributes.EmailType.value;
-				data.querySelectorAll('DomainDNSGetHostsResult > host').forEach(e=>
+				data=data.querySelector('DomainDNSGetHostsResult');
+				if(data.attributes.Domain.value!=this.sld+'.'+this.tld)
+				{
+					return;
+				}
+				this.emailType=data.attributes.EmailType.value;
+				data.querySelectorAll('host').forEach(e=>
 				{
 					e=e.attributes;
 					e=
@@ -146,6 +169,19 @@ export default
 					this.records.push(e);
 				});
 				this.loading=false;
+			});
+		},
+		newRecord()
+		{
+			this.records.push(
+			{
+				id: -1,
+				ddns: false,
+				ttl: '300',
+				type: 'A',
+				host: 'Click Me',
+				value: 'Click Me',
+				mx_preference: '10'
 			});
 		},
 		deleteRecord(record)

@@ -30,7 +30,7 @@
 							<v-list-tile-title>{{ d.domain.toUpperCase() }}</v-list-tile-title>
 						</v-list-tile-content>
 						<v-list-tile-action v-if="d.icon">
-							<v-icon>{{ d.icon }}</v-icon>
+							<v-icon :title="d.info">{{ d.icon }}</v-icon>
 						</v-list-tile-action>
 					</v-list-tile>
 				</v-list-group>
