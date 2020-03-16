@@ -12,14 +12,14 @@
     "core-js": "^3.4.4",
     "isomorphic-fetch": "^2.2.1",
     "vue": "^2.6.10",
-    "vue-router": "^3.1.5",
-    "vuetify": "^1.5.5"
+    "vue-router": "^3.1.6",
+    "vuetify": "^1.5.24"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^4.1.0",
-    "@vue/cli-plugin-eslint": "^4.1.0",
-    "@vue/cli-service": "^4.1.0",
-    "babel-eslint": "^10.0.3",
+    "@vue/cli-plugin-babel": "^4.2.3",
+    "@vue/cli-plugin-eslint": "^4.2.3",
+    "@vue/cli-service": "^4.2.3",
+    "babel-eslint": "^10.1.0",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
     "stylus": "^0.54.5",
